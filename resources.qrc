@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>icon.png</file>
+        <file>src/ui/cursor.png</file>
+        <file>TerminusTTF-4.49.3.ttf</file>
+    </qresource>
+</RCC> 
