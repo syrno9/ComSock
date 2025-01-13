@@ -15,20 +15,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowFlags(Qt::FramelessWindowHint);
     resize(800, 600);
     
-    // Title bar
-    auto titleBar = new QWidget(this);
-    titleBar->setFixedHeight(30);
-    titleBar->setStyleSheet("background: #3c3c3c; border-bottom: 1px solid #555555;");
-    
-    // Title label
-    auto titleLabel = new QLabel("ComSock", titleBar);
-    titleLabel->setStyleSheet("QLabel { color: #f4f4f4; padding-left: 10px; }");
-    
-    // Window control buttons
-    auto minimizeBtn = new QPushButton("-", titleBar);
-    auto maximizeBtn = new QPushButton("□", titleBar);
-    auto closeBtn = new QPushButton("×", titleBar);
-    
     // Style the buttons
     QString buttonStyle = R"(
         QPushButton {
@@ -46,10 +32,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         }
     )";
     
-    minimizeBtn->setStyleSheet(buttonStyle);
-    maximizeBtn->setStyleSheet(buttonStyle);
-    closeBtn->setStyleSheet(buttonStyle);
-    closeBtn->setObjectName("closeButton");
     QPixmap cursorPixmap("src/ui/cursor.png");
     QCursor customCursor(cursorPixmap);
     qApp->setOverrideCursor(customCursor);
@@ -172,43 +154,7 @@ void MainWindow::setupLayout() {
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     
-    // Title bar
-    auto titleBar = new QWidget(this);
-    titleBar->setFixedHeight(30);
-    titleBar->setStyleSheet("background: #3c3c3c; border-bottom: 1px solid #555555;");
-    
-    // Title label
-    auto titleLabel = new QLabel("ComSock", titleBar);
-    titleLabel->setStyleSheet("QLabel { color: #f4f4f4; padding-left: 10px; }");
-    
-    // Window control buttons
-    auto minimizeBtn = new QPushButton("-", titleBar);
-    auto maximizeBtn = new QPushButton("□", titleBar);
-    auto closeBtn = new QPushButton("×", titleBar);
-    
-    // Layout for title bar
-    auto titleLayout = new QHBoxLayout(titleBar);
-    titleLayout->setContentsMargins(0, 0, 0, 0);
-    titleLayout->addWidget(titleLabel);
-    titleLayout->addStretch();
-    titleLayout->addWidget(minimizeBtn);
-    titleLayout->addWidget(maximizeBtn);
-    titleLayout->addWidget(closeBtn);
-    
-    // Connect window control buttons
-    connect(minimizeBtn, &QPushButton::clicked, this, &MainWindow::showMinimized);
-    connect(maximizeBtn, &QPushButton::clicked, this, [this]() {
-        if (isMaximized()) showNormal();
-        else showMaximized();
-    });
-    connect(closeBtn, &QPushButton::clicked, this, &QWidget::close);
-    
-    // Enable window dragging
-    titleBar->installEventFilter(this);
-    
-    // Add title bar to main layout
-    mainLayout->addWidget(titleBar);
-        
+    // Add the splitter directly to the main layout
     auto splitter = new QSplitter(Qt::Horizontal);
     
     // Left side - Channel list
