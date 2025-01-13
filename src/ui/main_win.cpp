@@ -176,6 +176,9 @@ void MainWindow::setupLayout() {
     splitter->setSizes(sizes);
     
     mainLayout->addWidget(splitter);
+    
+    // Connect the channel list click signal to the slot
+    connect(channelList, &ChannelList::channelClicked, this, &MainWindow::switchToChannel);
 }
 
 void MainWindow::showConnectDialog() {
@@ -332,6 +335,8 @@ void MainWindow::handleCommand(const QString& command) {
         
         // Then join the channel
         client->joinChannel(channel);
+        
+        handleChannelChanged(channel);
     }
     else {
         if (auto display = channelDisplays[currentChannel]) {
@@ -415,4 +420,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
         }
     }
     return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::switchToChannel(const QString& channel) {
+    if (channelDisplays.contains(channel)) {
+        handleChannelChanged(channel);
+    }
 }

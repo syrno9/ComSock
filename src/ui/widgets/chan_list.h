@@ -11,7 +11,7 @@ public:
     QString currentChannel() const;
 
 signals:
-    void channelChanged(const QString& channel);
+    void channelClicked(const QString& channel);
 
 private slots:
     void handleItemClicked(QListWidgetItem* item);

@@ -32,6 +32,7 @@ private slots:
     void handleTabChanged(int index);
     void sendMessage();
     void about();
+    void switchToChannel(const QString& channel);
 
 private:
     Client* client;

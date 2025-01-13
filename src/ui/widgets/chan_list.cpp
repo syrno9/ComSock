@@ -1,4 +1,5 @@
 #include "chan_list.h"
+#include <QListWidgetItem>
 
 ChannelList::ChannelList(QWidget* parent) : QListWidget(parent) {
     connect(this, &QListWidget::itemClicked, this, &ChannelList::handleItemClicked);
@@ -21,5 +22,5 @@ QString ChannelList::currentChannel() const {
 }
 
 void ChannelList::handleItemClicked(QListWidgetItem* item) {
-    emit channelChanged(item->text());
+    emit channelClicked(item->text());
 }
