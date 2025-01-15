@@ -367,10 +367,20 @@ void MainWindow::handleChannelChanged(const QString& channel) {
 }
 
 void MainWindow::about() {
-    QMessageBox::about(this, tr("About ComSock"),
-        tr("ComSock IRC Client\n"
-           "A simple IRC client written in Qt\n"
-           "Licensed under GNU GPL v2"));
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Bean Consumer says:"));
+    msgBox.setText(tr("<b>ComSock IRC Client</b><br>"
+                      "A simple primitive IRC client to suit your messaging needs<br>"
+                      "Version: 0.0.5<br><br>"
+                      "Licensed under MIT lisence"));
+
+    QPixmap beanPixmap("src/ui/bean_consumer_by_creepercat1_dfte7u0-pre.jpg");
+    msgBox.setIconPixmap(beanPixmap);
+
+    QPushButton *thanksButton = msgBox.addButton(tr("Thanks Bean Consumer!"), QMessageBox::AcceptRole);
+    msgBox.setDefaultButton(thanksButton);
+
+    msgBox.exec();
 }
 
 void MainWindow::handleDisconnect() {
