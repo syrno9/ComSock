@@ -27,7 +27,7 @@ private slots:
     void handleDisconnect();
     void handleMessageReceived(const Message& message);
     void handleUserJoined(const QString& channel, const QString& user);
-    void handleUserLeft(const QString& channel, const QString& user);
+    void handleUserLeft(const QString& channel, const QString& user, const QString& reason);
     void handleChannelChanged(const QString& channel);
     void handleTabChanged(int index);
     void sendMessage();

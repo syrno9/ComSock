@@ -391,18 +391,29 @@ void MainWindow::handleDisconnect() {
 }
 
 void MainWindow::handleUserJoined(const QString& channel, const QString& user) {
-    if (channelDisplays.contains(channel)) {
-        channelDisplays[channel]->addSystemMessage(
-            QString("%1 has joined %2").arg(user, channel)
+    QString cleanChannel = channel;
+    if (cleanChannel.startsWith(':')) {
+        cleanChannel = cleanChannel.mid(1);  
+    }
+    
+    if (channelDisplays.contains(cleanChannel)) {
+        channelDisplays[cleanChannel]->addSystemMessage(
+            QString("%1 has joined").arg(user)
         );
     }
 }
 
-void MainWindow::handleUserLeft(const QString& channel, const QString& user) {
+void MainWindow::handleUserLeft(const QString& channel, const QString& user, const QString& reason) {
     if (channelDisplays.contains(channel)) {
-        channelDisplays[channel]->addSystemMessage(
-            QString("%1 has left %2").arg(user, channel)
-        );
+        if (!reason.isEmpty()) {
+            channelDisplays[channel]->addSystemMessage(
+                QString("%1 has quit (%2)").arg(user, reason)
+            );
+        } else {
+            channelDisplays[channel]->addSystemMessage(
+                QString("%1 has left %2").arg(user, channel)
+            );
+        }
     }
 }
 

@@ -12,4 +12,5 @@ struct Message {
     
     static Message parse(const QString& raw);
     QString nickname() const;
+    QString fullUserInfo() const { return prefix; }
 };

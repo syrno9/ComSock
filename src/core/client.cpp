@@ -51,6 +51,7 @@ void Client::joinChannel(const QString& channel) {
         qDebug() << "Cannot join channel: not connected";
         return;
     }
+    activeChannels.insert(channel);
     QString cmd = QString("JOIN %1\r\n").arg(channel);
     socket->write(cmd.toUtf8());
 }
@@ -113,7 +114,17 @@ void Client::handleSocketData() {
             emit messageReceived(msg);
         }
         else if (msg.command == "JOIN") {
-            emit userJoined(msg.params, msg.nickname());
+            emit userJoined(msg.params, msg.fullUserInfo());
+        }
+        else if (msg.command == "QUIT") {
+            QString reason = msg.trailing;
+            QString user = msg.fullUserInfo();
+            for (const QString& channel : activeChannels) {
+                emit userLeft(channel, user, reason);
+            }
+        }
+        else if (msg.command == "PART") {
+            emit userLeft(msg.params, msg.fullUserInfo(), QString());
         }
         else if (msg.command == "ERROR") {
             qDebug() << "Server error:" << msg.trailing;

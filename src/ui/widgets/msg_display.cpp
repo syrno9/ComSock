@@ -20,7 +20,17 @@ void ChatDisplay::addMessage(const QString& sender, const QString& message,
 
 void ChatDisplay::addSystemMessage(const QString& message, const QDateTime& timestamp) {
     QString timeStr = timestamp.toString("[hh:mm:ss] ");
-    append(QString("%1* %2").arg(timeStr, message));
+    QString coloredMessage;
+    
+    if (message.contains("has joined")) {
+        coloredMessage = QString("<span style='color: #FF851B'>%1</span>").arg(message);
+    } else if (message.contains("has left") || message.contains("has quit")) {
+        coloredMessage = QString("<span style='color: #FFDC00'>%1</span>").arg(message);
+    } else {
+        coloredMessage = message;  
+    }
+    
+    append(QString("%1* %2").arg(timeStr, coloredMessage));
 }
 
 void ChatDisplay::addUserAction(const QString& user, const QString& action,

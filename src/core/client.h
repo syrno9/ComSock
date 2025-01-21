@@ -21,7 +21,7 @@ signals:
     void disconnected();
     void messageReceived(const Message& message);
     void userJoined(const QString& channel, const QString& nickname);
-    void userLeft(const QString& channel, const QString& nickname);
+    void userLeft(const QString& channel, const QString& nickname, const QString& reason);
     void topicChanged(const QString& channel, const QString& topic);
     void error(const QString& error);
     
@@ -35,6 +35,7 @@ private:
     QString currentNickname;
     QString currentUsername;
     bool registrationSent = false;
+    QSet<QString> activeChannels;
     
     // helper methods
     void sendRegistration();
