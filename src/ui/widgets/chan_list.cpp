@@ -1,13 +1,20 @@
 #include "chan_list.h"
 #include <QListWidgetItem>
+#include <QStyle>
 
 ChannelList::ChannelList(QWidget* parent) : QListWidget(parent) {
     connect(this, &QListWidget::itemClicked, this, &ChannelList::handleItemClicked);
+    
+    channelIcon = style()->standardIcon(QStyle::SP_MessageBoxInformation);
+    serverIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 }
 
-void ChannelList::addChannel(const QString& channel) {
+void ChannelList::addChannel(const QString& channel, bool isServer) {
     if (!findItems(channel, Qt::MatchExactly).isEmpty()) return;
-    addItem(channel);
+    
+    auto item = new QListWidgetItem(channel);
+    item->setIcon(isServer ? serverIcon : channelIcon);
+    addItem(item);
 }
 
 void ChannelList::removeChannel(const QString& channel) {

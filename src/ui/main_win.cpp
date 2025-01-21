@@ -346,13 +346,14 @@ void MainWindow::handleCommand(const QString& command) {
 }
 
 void MainWindow::createChannelTab(const QString& channel) {
-    if (!channelDisplays.contains(channel)) {
-        auto display = new ChatDisplay(this);
-        channelDisplays[channel] = display;
-        channelTabs->addTab(display, channel);
-        channelList->addChannel(channel);
-        display->addSystemMessage(QString("Joined channel %1").arg(channel));
-    }
+    if (channelDisplays.contains(channel)) return;
+    
+    auto display = new ChatDisplay(this);
+    channelDisplays[channel] = display;
+    channelTabs->addTab(display, channel);
+    
+    bool isServer = (channel == "Server");
+    channelList->addChannel(channel, isServer);
 }
 
 void MainWindow::handleChannelChanged(const QString& channel) {
