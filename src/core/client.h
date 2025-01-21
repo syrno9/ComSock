@@ -15,6 +15,7 @@ public:
     void setNickname(const QString& nickname);
     void setUsername(const QString& username);
     QString nickname() const { return currentNickname; }
+    void partChannel(const QString& channel);
     
 signals:
     void connected();

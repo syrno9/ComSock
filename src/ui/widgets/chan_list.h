@@ -13,6 +13,7 @@ public:
 
 signals:
     void channelClicked(const QString& channel);
+    void leaveChannelRequested(const QString& channel);
 
 private:
     QIcon channelIcon;
@@ -20,4 +21,7 @@ private:
     
 private slots:
     void handleItemClicked(QListWidgetItem* item);
+
+protected:
+    void contextMenuEvent(QContextMenuEvent* event) override;
 };

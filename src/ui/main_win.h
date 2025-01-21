@@ -33,6 +33,8 @@ private slots:
     void sendMessage();
     void about();
     void switchToChannel(const QString& channel);
+    void handleTabClose(int index);
+    void leaveChannel(const QString& channel);
 
 private:
     Client* client;

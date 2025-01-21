@@ -179,6 +179,13 @@ void MainWindow::setupLayout() {
     
     // Connect the channel list click signal to the slot
     connect(channelList, &ChannelList::channelClicked, this, &MainWindow::switchToChannel);
+    
+    channelTabs->setMovable(true);
+    channelTabs->setTabsClosable(true);  
+    channelTabs->tabBar()->setTabButton(0, QTabBar::RightSide, nullptr);  // Disable close button for Server tab
+    
+    connect(channelTabs, &QTabWidget::tabCloseRequested, this, &MainWindow::handleTabClose);
+    connect(channelList, &ChannelList::leaveChannelRequested, this, &MainWindow::leaveChannel);
 }
 
 void MainWindow::showConnectDialog() {
@@ -447,5 +454,27 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
 void MainWindow::switchToChannel(const QString& channel) {
     if (channelDisplays.contains(channel)) {
         handleChannelChanged(channel);
+    }
+}
+
+void MainWindow::handleTabClose(int index) {
+    QString channel = channelTabs->tabText(index);
+    if (channel != "Server") {  // Don't allow closing server tab
+        leaveChannel(channel);
+    }
+}
+
+void MainWindow::leaveChannel(const QString& channel) {
+    if (channel == "Server") return;
+    
+    client->partChannel(channel);
+    
+    channelTabs->removeTab(channelTabs->indexOf(channelDisplays[channel]));
+    delete channelDisplays[channel];
+    channelDisplays.remove(channel);
+    channelList->removeChannel(channel);
+    
+    if (currentChannel == channel) {
+        handleChannelChanged("Server");
     }
 }

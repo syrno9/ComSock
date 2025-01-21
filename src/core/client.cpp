@@ -163,3 +163,13 @@ void Client::reconnect() {
         connectToServer(socket->peerName(), socket->peerPort());
     });
 }
+
+void Client::partChannel(const QString& channel) {
+    if (!socket || socket->state() != QTcpSocket::ConnectedState) {
+        qDebug() << "Cannot leave channel: not connected";
+        return;
+    }
+    QString cmd = QString("PART %1\r\n").arg(channel);
+    socket->write(cmd.toUtf8());
+    activeChannels.remove(channel);
+}
