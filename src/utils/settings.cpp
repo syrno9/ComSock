@@ -40,4 +40,13 @@ QString Settings::generateGuestNickname() {
     qint64 timestamp = QDateTime::currentMSecsSinceEpoch();
     int randomNum = timestamp % 10000;
     return QString("Guest%1").arg(randomNum, 4, 10, QChar('0'));
+}
+
+void Settings::saveShowJoinDialog(bool show) {
+    instance().setValue("showJoinDialog", show);
+    instance().sync();
+}
+
+bool Settings::shouldShowJoinDialog() {
+    return instance().value("showJoinDialog", true).toBool();
 } 

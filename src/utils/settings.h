@@ -8,6 +8,8 @@ public:
     static QStringList loadServers();
     static void saveNickname(const QString& nickname);
     static QString loadNickname();
+    static void saveShowJoinDialog(bool show);
+    static bool shouldShowJoinDialog();
     
 private:
     static QSettings& instance();

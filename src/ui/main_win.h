@@ -32,6 +32,7 @@ private slots:
     void switchToChannel(const QString& channel);
     void handleTabClose(int index);
     void leaveChannel(const QString& channel);
+    void showJoinChannelDialog();
 
 private:
     Client* client;

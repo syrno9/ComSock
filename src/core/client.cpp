@@ -133,6 +133,15 @@ void Client::handleSocketData() {
         else if (msg.command.toInt() > 0 || msg.command == "NOTICE") {
             emit messageReceived(msg);
         }
+        else if (msg.command == "322") { // RPL_LIST
+            QString channel = msg.params.section(" ", 1, 1);
+            QString userCount = msg.params.section(" ", 2, 2);
+            QString topic = msg.params.section(" ", 3);
+            if (topic.startsWith(":")) {
+                topic = topic.mid(1);
+            }
+            emit channelListReceived({channel});
+        }
     }
 }
 
@@ -172,4 +181,14 @@ void Client::partChannel(const QString& channel) {
     QString cmd = QString("PART %1\r\n").arg(channel);
     socket->write(cmd.toUtf8());
     activeChannels.remove(channel);
+}
+
+void Client::requestChannelList() {
+    if (!socket || socket->state() != QTcpSocket::ConnectedState) return;
+    
+    // Clear any existing channels first
+    emit channelListReceived(QStringList());
+    
+    // Request channel list from server
+    socket->write("LIST\r\n");
 }

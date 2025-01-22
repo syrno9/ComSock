@@ -1,5 +1,7 @@
 #include "main_win.h"
+#include "../utils/settings.h"
 #include "dialogs/connect.h"
+#include "dialogs/join_channel.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -211,6 +213,9 @@ void MainWindow::showConnectDialog() {
         // Connect signals
         connect(client, &Client::connected, this, [this]() {
             qDebug() << "Successfully registered with server";
+            if (Settings::shouldShowJoinDialog()) {
+                QTimer::singleShot(1000, this, &MainWindow::showJoinChannelDialog);
+            }
         });
         
         connect(client, &Client::error, this, [this](const QString& error) {
@@ -254,6 +259,17 @@ void MainWindow::handleMessageReceived(const Message& message) {
             userList->updateUsers(channel, users);
         }
     }
+    else if (message.command == "322") { // RPL_LIST
+        // Don't display LIST responses in chat window
+        QString channel = message.params.section(" ", 1, 1);
+        QString userCount = message.params.section(" ", 2, 2);
+        QString topic = message.params.section(" ", 3);
+        if (topic.startsWith(":")) {
+            topic = topic.mid(1);
+        }
+        emit client->channelListReceived({channel});
+        return; // Skip displaying in chat
+    }
     else if (message.command == "NOTICE") {
         // Show notices in current active channel or create a server tab
         QString target = currentChannel;
@@ -276,16 +292,19 @@ void MainWindow::handleMessageReceived(const Message& message) {
     }
     else if (message.command.toInt() > 0) {
         // Show numeric replies in current channel or server tab
-        QString target = currentChannel;
-        if (target.isEmpty()) {
-            target = "Server";
-            if (!channelDisplays.contains(target)) {
-                createChannelTab(target);
+        // But skip LIST-related numerics
+        if (message.command != "322" && message.command != "323") {  // 323 is RPL_LISTEND
+            QString target = currentChannel;
+            if (target.isEmpty()) {
+                target = "Server";
+                if (!channelDisplays.contains(target)) {
+                    createChannelTab(target);
+                }
             }
-        }
-        auto display = channelDisplays[target];
-        if (display) {
-            display->addSystemMessage(message.trailing);
+            auto display = channelDisplays[target];
+            if (display) {
+                display->addSystemMessage(message.trailing);
+            }
         }
     }
 }
@@ -457,4 +476,33 @@ void MainWindow::leaveChannel(const QString& channel) {
     if (currentChannel == channel) {
         handleChannelChanged("Server");
     }
+}
+
+void MainWindow::showJoinChannelDialog() {
+    auto dialog = new JoinChannelDialog(this);
+    
+    // Connect the refresh button to request channel list
+    connect(dialog, &JoinChannelDialog::refreshRequested, this, [this]() {
+        client->requestChannelList();
+    });
+    
+    // Connect channel list updates from server
+    connect(client, &Client::channelListReceived, dialog, &JoinChannelDialog::setChannelList);
+    
+    // Request initial channel list
+    client->requestChannelList();
+    
+    if (dialog->exec() == QDialog::Accepted) {
+        QString channel = dialog->getChannel();
+        if (!channel.isEmpty()) {
+            createChannelTab(channel);
+            client->joinChannel(channel);
+            handleChannelChanged(channel);
+        }
+        if (dialog->getDontShowAgain()) {
+            Settings::saveShowJoinDialog(false);
+        }
+    }
+    
+    dialog->deleteLater();
 }

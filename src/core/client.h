@@ -16,6 +16,7 @@ public:
     void setUsername(const QString& username);
     QString nickname() const { return currentNickname; }
     void partChannel(const QString& channel);
+    void requestChannelList();
     
 signals:
     void connected();
@@ -25,6 +26,7 @@ signals:
     void userLeft(const QString& channel, const QString& nickname, const QString& reason);
     void topicChanged(const QString& channel, const QString& topic);
     void error(const QString& error);
+    void channelListReceived(const QStringList& channels);
     
 private slots:
     void handleConnected();
