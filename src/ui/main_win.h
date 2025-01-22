@@ -19,9 +19,6 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget* parent = nullptr);
 
-protected:
-    bool eventFilter(QObject* obj, QEvent* event) override;
-
 private slots:
     void showConnectDialog();
     void handleDisconnect();

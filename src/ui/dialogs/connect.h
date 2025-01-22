@@ -2,6 +2,7 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QPushButton>
 
 class ConnectDialog : public QDialog {
     Q_OBJECT
@@ -13,12 +14,20 @@ public:
     QString getUsername() const;
     QStringList getAlternativeNicks() const;
 
+private slots:
+    void addNewServer();
+    void removeServer();
+    void saveServers();
+
 private:
     QListWidget* networkList;
     QLineEdit* nicknameInput;
     QLineEdit* nickname2Input;
     QLineEdit* nickname3Input;
     QLineEdit* usernameInput;
+    QPushButton* addServerButton;
+    QPushButton* removeServerButton;
     
     void setupDefaultServers();
+    void setupServerButtons();
 };

@@ -15,7 +15,8 @@ SOURCES += \
     src/ui/widgets/chan_list.cpp \
     src/ui/widgets/usr_list.cpp \
     src/ui/widgets/msg_display.cpp \
-    src/utils/color.cpp
+    src/utils/color.cpp \
+    src/utils/settings.cpp
 
 HEADERS += \
     src/core/client.h \
@@ -25,6 +26,7 @@ HEADERS += \
     src/ui/widgets/usr_list.h \
     src/ui/widgets/msg_display.h \
     src/ui/main_win.h \
-    src/utils/color.h
+    src/utils/color.h \
+    src/utils/settings.h
 
 RESOURCES += resources.qrc

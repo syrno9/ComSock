@@ -1,23 +1,36 @@
 #include "connect.h"
+#include "../../utils/settings.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QInputDialog>
+#include <QMessageBox>
 
 ConnectDialog::ConnectDialog(QWidget* parent) : QDialog(parent) {
     setWindowTitle("Connect to Server");
     
     auto layout = new QVBoxLayout(this);
     
-    // Server list
+    auto serverSection = new QVBoxLayout;
+    serverSection->addWidget(new QLabel("Server:"));
+    
     networkList = new QListWidget(this);
-    networkList->addItems({"irc.libera.chat", "irc.freenode.net", "irc.rizon.net"});
-    layout->addWidget(new QLabel("Server:"));
-    layout->addWidget(networkList);
+    serverSection->addWidget(networkList);
+    
+    auto buttonLayout = new QHBoxLayout;
+    addServerButton = new QPushButton("Add Server", this);
+    removeServerButton = new QPushButton("Remove Server", this);
+    buttonLayout->addWidget(addServerButton);
+    buttonLayout->addWidget(removeServerButton);
+    serverSection->addLayout(buttonLayout);
+    
+    layout->addLayout(serverSection);
     
     // Nickname inputs
     auto nickLayout = new QVBoxLayout;
     nicknameInput = new QLineEdit(this);
+    nicknameInput->setText(Settings::loadNickname());  // Load saved or guest nickname
     nickname2Input = new QLineEdit(this);
     nickname3Input = new QLineEdit(this);
     
@@ -29,17 +42,27 @@ ConnectDialog::ConnectDialog(QWidget* parent) : QDialog(parent) {
     
     // Username input
     usernameInput = new QLineEdit(this);
+    usernameInput->setText(nicknameInput->text());  
     nickLayout->addWidget(new QLabel("Username:"));
     nickLayout->addWidget(usernameInput);
     
     layout->addLayout(nickLayout);
     
-    // Buttons
+    connect(nicknameInput, &QLineEdit::textChanged, this, [this](const QString& text) {
+        if (usernameInput->text().isEmpty() || 
+            usernameInput->text().startsWith("Guest")) {
+            usernameInput->setText(text);
+        }
+    });
+    
     auto buttonBox = new QHBoxLayout;
     auto connectButton = new QPushButton("Connect", this);
     auto cancelButton = new QPushButton("Cancel", this);
     
-    connect(connectButton, &QPushButton::clicked, this, &QDialog::accept);
+    connect(connectButton, &QPushButton::clicked, this, [this]() {
+        Settings::saveNickname(nicknameInput->text());
+        accept();
+    });
     connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
     
     buttonBox->addWidget(connectButton);
@@ -47,6 +70,7 @@ ConnectDialog::ConnectDialog(QWidget* parent) : QDialog(parent) {
     layout->addLayout(buttonBox);
     
     setupDefaultServers();
+    setupServerButtons();
 }
 
 QString ConnectDialog::getServer() const {
@@ -69,21 +93,51 @@ QStringList ConnectDialog::getAlternativeNicks() const {
 }
 
 void ConnectDialog::setupDefaultServers() {
-    networkList->setCurrentRow(0);  // Select first server by default
+    networkList->clear();
+    networkList->addItems(Settings::loadServers());
+    networkList->setCurrentRow(0);
+}
+
+void ConnectDialog::setupServerButtons() {
+    connect(addServerButton, &QPushButton::clicked, this, &ConnectDialog::addNewServer);
+    connect(removeServerButton, &QPushButton::clicked, this, &ConnectDialog::removeServer);
+}
+
+void ConnectDialog::addNewServer() {
+    bool ok;
+    QString server = QInputDialog::getText(this, "Add Server",
+                                         "Enter server address:",
+                                         QLineEdit::Normal,
+                                         QString(), &ok);
     
-    // Make sure we have a valid server selected
-    if (!networkList->currentItem()) {
-        networkList->addItem("irc.libera.chat");
-        networkList->setCurrentRow(0);
+    if (ok && !server.isEmpty()) {
+        if (!networkList->findItems(server, Qt::MatchExactly).isEmpty()) {
+            QMessageBox::warning(this, "Duplicate Server",
+                               "This server is already in the list.");
+            return;
+        }
+        
+        networkList->addItem(server);
+        saveServers();
     }
+}
+
+void ConnectDialog::removeServer() {
+    QListWidgetItem* current = networkList->currentItem();
+    if (!current) return;
     
-    // Set default nickname if empty
-    if (nicknameInput->text().isEmpty()) {
-        nicknameInput->setText("Guest" + QString::number(qrand() % 1000));
+    if (QMessageBox::question(this, "Remove Server",
+                            "Are you sure you want to remove this server?") 
+        == QMessageBox::Yes) {
+        delete networkList->takeItem(networkList->row(current));
+        saveServers();
     }
-    
-    // Set default username if empty
-    if (usernameInput->text().isEmpty()) {
-        usernameInput->setText(nicknameInput->text());
+}
+
+void ConnectDialog::saveServers() {
+    QStringList servers;
+    for (int i = 0; i < networkList->count(); i++) {
+        servers << networkList->item(i)->text();
     }
+    Settings::saveServers(servers);
 }

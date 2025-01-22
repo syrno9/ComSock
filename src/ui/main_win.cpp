@@ -12,7 +12,6 @@
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("ComSock");
-    setWindowFlags(Qt::FramelessWindowHint);
     resize(800, 600);
     
     // Style the buttons
@@ -430,25 +429,6 @@ void MainWindow::handleTabChanged(int index) {
         QString channel = channelTabs->tabText(index);
         handleChannelChanged(channel);
     }
-}
-
-bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
-    static QPoint dragPos;
-    
-    if (event->type() == QEvent::MouseButtonPress) {
-        auto mouseEvent = static_cast<QMouseEvent*>(event);
-        if (mouseEvent->button() == Qt::LeftButton) {
-            dragPos = mouseEvent->globalPos() - frameGeometry().topLeft();
-            return true;
-        }
-    } else if (event->type() == QEvent::MouseMove) {
-        auto mouseEvent = static_cast<QMouseEvent*>(event);
-        if (mouseEvent->buttons() & Qt::LeftButton) {
-            move(mouseEvent->globalPos() - dragPos);
-            return true;
-        }
-    }
-    return QMainWindow::eventFilter(obj, event);
 }
 
 void MainWindow::switchToChannel(const QString& channel) {
