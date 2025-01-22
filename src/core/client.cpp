@@ -133,14 +133,23 @@ void Client::handleSocketData() {
         else if (msg.command.toInt() > 0 || msg.command == "NOTICE") {
             emit messageReceived(msg);
         }
-        else if (msg.command == "322") { // RPL_LIST
+        else if (msg.command == "322") {  // RPL_LIST
             QString channel = msg.params.section(" ", 1, 1);
             QString userCount = msg.params.section(" ", 2, 2);
             QString topic = msg.params.section(" ", 3);
             if (topic.startsWith(":")) {
                 topic = topic.mid(1);
             }
-            emit channelListReceived({channel});
+            // Add to buffer instead of emitting immediately
+            if (!channelListBuffer.contains(channel)) {
+                channelListBuffer.append(channel);
+            }
+        }
+        else if (msg.command == "323") {  // RPL_LISTEND
+            // Sort the channels alphabetically before emitting
+            channelListBuffer.sort();
+            emit channelListReceived(channelListBuffer);
+            channelListBuffer.clear();
         }
     }
 }
@@ -186,9 +195,8 @@ void Client::partChannel(const QString& channel) {
 void Client::requestChannelList() {
     if (!socket || socket->state() != QTcpSocket::ConnectedState) return;
     
-    // Clear any existing channels first
-    emit channelListReceived(QStringList());
-    
-    // Request channel list from server
+    // Clear the buffer before requesting new list
+    channelListBuffer.clear();
+    emit channelListReceived(QStringList());  // Clear the current list in the dialog
     socket->write("LIST\r\n");
 }

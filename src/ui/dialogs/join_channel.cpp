@@ -64,12 +64,28 @@ bool JoinChannelDialog::getDontShowAgain() const {
 }
 
 void JoinChannelDialog::setChannelList(const QStringList& channels) {
+    if (channels.isEmpty()) {
+        channelList->clear();
+        return;
+    }
+    
+    // Save the current selection if any
+    QString currentSelection = channelList->currentItem() ? 
+                             channelList->currentItem()->text() : QString();
+    
     channelList->clear();
     for (const QString& channel : channels) {
-        // Only add if it starts with # and isn't already in the list
         if (channel.startsWith("#") && 
             channelList->findItems(channel, Qt::MatchExactly).isEmpty()) {
             channelList->addItem(channel);
+        }
+    }
+    
+    // Restore selection if possible
+    if (!currentSelection.isEmpty()) {
+        auto items = channelList->findItems(currentSelection, Qt::MatchExactly);
+        if (!items.isEmpty()) {
+            channelList->setCurrentItem(items.first());
         }
     }
 }

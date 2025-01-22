@@ -44,6 +44,7 @@ private:
     // channel management
     QString currentChannel;
     QMap<QString, ChatDisplay*> channelDisplays;
+    QStringList channelListBuffer;
     
     // helper methods
     void setupMenuBar();

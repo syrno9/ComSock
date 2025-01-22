@@ -39,6 +39,7 @@ private:
     QString currentUsername;
     bool registrationSent = false;
     QSet<QString> activeChannels;
+    QStringList channelListBuffer;
     
     // helper methods
     void sendRegistration();

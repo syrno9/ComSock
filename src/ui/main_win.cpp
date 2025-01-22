@@ -137,11 +137,12 @@ void MainWindow::setupMenuBar() {
     auto menuBar = new QMenuBar(this);
     setMenuBar(menuBar);
     
-    auto fileMenu = menuBar->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&Connect"), this, &MainWindow::showConnectDialog);
-    fileMenu->addAction(tr("&Disconnect"), this, &MainWindow::handleDisconnect);
-    fileMenu->addSeparator();
-    fileMenu->addAction(tr("E&xit"), qApp, &QApplication::quit);
+    auto serverMenu = menuBar->addMenu(tr("&Server"));
+    serverMenu->addAction(tr("&Connect"), this, &MainWindow::showConnectDialog);
+    serverMenu->addAction(tr("&Join Channel"), this, &MainWindow::showJoinChannelDialog);
+    serverMenu->addAction(tr("&Disconnect"), this, &MainWindow::handleDisconnect);
+    serverMenu->addSeparator();
+    serverMenu->addAction(tr("E&xit"), qApp, &QApplication::quit);
     
     auto helpMenu = menuBar->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About"), this, &MainWindow::about);
@@ -260,15 +261,20 @@ void MainWindow::handleMessageReceived(const Message& message) {
         }
     }
     else if (message.command == "322") { // RPL_LIST
-        // Don't display LIST responses in chat window
         QString channel = message.params.section(" ", 1, 1);
         QString userCount = message.params.section(" ", 2, 2);
         QString topic = message.params.section(" ", 3);
         if (topic.startsWith(":")) {
             topic = topic.mid(1);
         }
-        emit client->channelListReceived({channel});
-        return; // Skip displaying in chat
+        channelListBuffer.append(channel);
+        return;
+    }
+    else if (message.command == "323") { // RPL_LISTEND
+        // Emit the complete list when we get the end marker
+        emit client->channelListReceived(channelListBuffer);
+        channelListBuffer.clear();
+        return;
     }
     else if (message.command == "NOTICE") {
         // Show notices in current active channel or create a server tab
