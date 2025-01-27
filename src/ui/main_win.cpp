@@ -404,7 +404,7 @@ void MainWindow::about() {
     msgBox.setText(tr("<b>ComSock IRC Client</b><br>"
                       "A simple primitive IRC client to suit your messaging needs<br>"
                       "Version: 0.0.5<br><br>"
-                      "Licensed under MIT lisence"));
+                      "Licensed under MIT license"));
 
     QPixmap beanPixmap("src/ui/bean_consumer_by_creepercat1_dfte7u0-pre.jpg");
     msgBox.setIconPixmap(beanPixmap);
